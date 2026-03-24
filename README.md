@@ -247,7 +247,7 @@ docker run --rm \
 docker run --rm \
   -v "$(pwd)/build:/workspace/build" \
   automation-team-alpha:local \
-  ./gradlew test --no-daemon --offline -Dbrowser=firefox
+  ./gradlew test --no-daemon -Dbrowser=firefox
 
 # Override target URL
 docker run --rm \

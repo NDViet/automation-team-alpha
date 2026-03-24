@@ -120,7 +120,7 @@ jobs:
           docker run --rm \\
             -v "\$(pwd)/build:/workspace/build" \\
             ${GHCR_LATEST} \\
-            ./gradlew test --no-daemon --offline -Dbrowser=firefox
+            ./gradlew test --no-daemon -Dbrowser=firefox
 
           # Override the target URL
           docker run --rm \\
@@ -179,7 +179,7 @@ jobs:
             -e APP_URL=${{ inputs.app_url || 'https://the-internet.herokuapp.com' }} \
             -v ${{ github.workspace }}/build:/workspace/build \
             ${{ needs.build-image.outputs.ghcr-sha-tag }} \
-            ./gradlew test --no-daemon --offline \
+            ./gradlew test --no-daemon \
               -Dselenium.web_driver.target=REMOTE \
               -Dselenium.hub.url=http://selenium-hub:4444/wd/hub \
               -DAPP_URL=${{ inputs.app_url || 'https://the-internet.herokuapp.com' }} \

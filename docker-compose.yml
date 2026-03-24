@@ -132,4 +132,4 @@ services:
     command:
       - sh
       - -c
-      - "./gradlew test --no-daemon --offline -Dselenium.web_driver.target=REMOTE -Dselenium.hub.url=http://selenium-hub:4444/wd/hub -DAPP_URL=$$APP_URL -Dsuite=testng-grid.xml"
+      - "./gradlew test --no-daemon -Dselenium.web_driver.target=REMOTE -Dselenium.hub.url=http://selenium-hub:4444/wd/hub -DAPP_URL=$$APP_URL -Dsuite=testng-grid.xml"
