@@ -1,0 +1,7 @@
+Hovers Page:
+  Figure 1:  xpath=(//div[@class='figure'])[1]
+  Figure 2:  xpath=(//div[@class='figure'])[2]
+  Figure 3:  xpath=(//div[@class='figure'])[3]
+  Caption 1: xpath=(//div[@class='figcaption'])[1]
+  Caption 2: xpath=(//div[@class='figcaption'])[2]
+  Caption 3: xpath=(//div[@class='figcaption'])[3]

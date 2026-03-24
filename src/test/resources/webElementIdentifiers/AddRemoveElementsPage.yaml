@@ -1,0 +1,4 @@
+Add Remove Elements Page:
+  Add Element Button:  xpath=//button[text()='Add Element']
+  Delete Buttons:      cssSelector=.added-manually
+  First Delete Button: xpath=(//div[@id='elements']//button)[1]

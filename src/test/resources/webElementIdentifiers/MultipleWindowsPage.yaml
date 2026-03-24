@@ -1,0 +1,3 @@
+Multiple Windows Page:
+  Click Here Link: xpath=//a[text()='Click Here']
+  Page Heading:    cssSelector=h3

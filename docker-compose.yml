@@ -1,0 +1,135 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Selenium Grid 4  —  Hub + Chrome / Firefox / Edge nodes
+#
+# ── Start the grid only ───────────────────────────────────────────────────────
+#   docker compose up -d
+#   Grid console → http://localhost:4444
+#
+# ── Run tests from the local JVM against the grid ────────────────────────────
+#   ./gradlew test \
+#     -Dselenium.web_driver.target=REMOTE \
+#     -Dselenium.hub.url=http://localhost:4444/wd/hub
+#
+#   To use the grid-optimised suite (all 15 blocks in parallel):
+#   ./gradlew test \
+#     -Dselenium.web_driver.target=REMOTE \
+#     -Dselenium.hub.url=http://localhost:4444/wd/hub \
+#     -Dsuite=testng-grid.xml
+#
+# ── Run tests inside a container against the grid (profile: test) ─────────────
+#   docker compose --profile test up --abort-on-container-exit --exit-code-from test-runner
+#
+#   Override image (default: automation-team-alpha:local):
+#   TEST_RUNNER_IMAGE=ghcr.io/<repo>:latest docker compose --profile test up ...
+#
+#   Override target URL:
+#   APP_URL=https://staging.example.com docker compose --profile test up ...
+# ──────────────────────────────────────────────────────────────────────────────
+
+name: automation-grid
+
+services:
+
+  # ── Hub ───────────────────────────────────────────────────────────────────────
+  selenium-hub:
+    image: selenium/hub:4
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"   # WebDriver endpoint + Grid console
+      - "4442:4442"   # Event-bus publish port
+      - "4443:4443"   # Event-bus subscribe port
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4444/status | grep -q '\"ready\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # ── Browser nodes ─────────────────────────────────────────────────────────────
+  # shm_size: 2g avoids Chrome / Firefox shared-memory crashes in Docker.
+  # SE_NODE_MAX_SESSIONS matches testng-grid.xml thread-count-per-browser (5).
+  chrome:
+    image: selenium/node-chrome:4
+    platform: linux/amd64
+    container_name: selenium-node-chrome
+    shm_size: 2g
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 2
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5555/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  firefox:
+    image: selenium/node-firefox:4
+    container_name: selenium-node-firefox
+    shm_size: 2g
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 2
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5555/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  edge:
+    image: selenium/node-edge:4
+    platform: linux/amd64
+    container_name: selenium-node-edge
+    shm_size: 2g
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_MAX_SESSIONS: 2
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5555/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ── Test runner  (only started with: docker compose --profile test up) ────────
+  # Waits for all three browser nodes to be healthy before launching.
+  # $$APP_URL: $$ is a Compose escape — the container receives $APP_URL, which
+  # sh then expands from the environment set above.
+  test-runner:
+    profiles: [test]
+    image: ${TEST_RUNNER_IMAGE:-automation-team-alpha:local}
+    container_name: automation-test-runner
+    depends_on:
+      chrome:
+        condition: service_healthy
+      firefox:
+        condition: service_healthy
+      edge:
+        condition: service_healthy
+    environment:
+      APP_URL: ${APP_URL:-https://the-internet.herokuapp.com}
+    volumes:
+      - ./build:/workspace/build
+    command:
+      - sh
+      - -c
+      - "./gradlew test --no-daemon --offline -Dselenium.web_driver.target=REMOTE -Dselenium.hub.url=http://selenium-hub:4444/wd/hub -DAPP_URL=$$APP_URL -Dsuite=testng-grid.xml"

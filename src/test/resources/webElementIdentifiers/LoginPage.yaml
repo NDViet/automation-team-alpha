@@ -1,0 +1,6 @@
+Login Page:
+  Username:      id=username
+  Password:      id=password
+  Login Button:  cssSelector=button[type='submit']
+  Flash Message: id=flash
+  Logout Button: cssSelector=a[href='/logout']

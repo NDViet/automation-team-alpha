@@ -1,0 +1,117 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' version '7.0.2'
+}
+
+group = 'org.ndviet'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+ext {
+    fwkVersion      = '26.3.0-SNAPSHOT'
+    platformVersion = '1.0.0-SNAPSHOT'
+    testngVersion   = '7.11.0'
+}
+
+repositories {
+    // Local ~/.m2 is checked first so locally-installed SNAPSHOT builds take
+    // precedence over whatever is published to GitHub Packages.
+    // Run once to seed: mvn install -DskipTests in each framework repo.
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'NDViet-FWK'
+        url  = uri('https://maven.pkg.github.com/NDViet/test-automation-fwk')
+        credentials {
+            username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR') ?: ''
+            password = project.findProperty('gpr.token') ?: System.getenv('GITHUB_TOKEN') ?: ''
+        }
+    }
+    maven {
+        name = 'NDViet-Platform'
+        url  = uri('https://maven.pkg.github.com/NDViet/test-automation-platform')
+        credentials {
+            username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR') ?: ''
+            password = project.findProperty('gpr.token') ?: System.getenv('GITHUB_TOKEN') ?: ''
+        }
+    }
+}
+
+dependencies {
+    testImplementation "org.ndviet:test-libraries-webui:${fwkVersion}"
+    testImplementation "org.ndviet:platform-testkit-java:${platformVersion}"
+    testImplementation "org.testng:testng:${testngVersion}"
+}
+
+// Ensure SNAPSHOT artifacts are re-checked periodically
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 1, 'hours'
+}
+
+// ─── Code formatting ──────────────────────────────────────────────────────────
+// ./gradlew spotlessApply  → auto-format all Java sources
+// ./gradlew spotlessCheck  → verify formatting (used in CI)
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat('1.25.2')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+test {
+    useTestNG {
+        // Allow switching to a different suite at runtime, e.g.:
+        //   ./gradlew test -Dsuite=testng-grid.xml
+        def suite = System.getProperty('suite', 'testng.xml')
+        suites "src/test/resources/${suite}"
+    }
+
+    // Set working dir to project root so relative resource paths resolve correctly
+    workingDir = project.projectDir
+
+    // Running Chrome + Edge + Firefox in parallel needs more heap than the default
+    jvmArgs '-Xmx2g'
+
+    // Required by ConfigurationFactory: tells the framework where to find the YAML config.
+    // ConfigurationManager reads 'configuration.base' from System.getProperties() only –
+    // it never scans the classpath – so we must pass the absolute file path here.
+    systemProperty 'configuration.base',
+            "${project.projectDir}/src/test/resources/configuration.yaml"
+
+    // Pass the element-identifier directory as an absolute path so FileInputStream can
+    // find the files regardless of any working-directory edge cases inside the framework.
+    systemProperty 'webElementIdentifiers.directory',
+            "${project.projectDir}/src/test/resources/webElementIdentifiers"
+
+    // Forward system properties that control browser / grid config at runtime.
+    // selenium.web_driver.target and selenium.hub.url are only forwarded when
+    // explicitly provided so the YAML defaults in configuration.yaml remain active.
+    systemProperty 'browser', System.getProperty('browser', 'chrome')
+    systemProperty 'APP_URL', System.getProperty('APP_URL', 'https://the-internet.herokuapp.com')
+
+    def target = System.getProperty('selenium.web_driver.target')
+    if (target) systemProperty 'selenium.web_driver.target', target
+
+    def hubUrl = System.getProperty('selenium.hub.url')
+    if (hubUrl) systemProperty 'selenium.hub.url', hubUrl
+
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showExceptions     = true
+        showCauses         = true
+        showStackTraces    = false
+        showStandardStreams = false
+    }
+
+    reports {
+        html.required     = true
+        junitXml.required = true
+    }
+}

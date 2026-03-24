@@ -1,0 +1,5 @@
+JS Alerts Page:
+  Alert Button:   xpath=//button[text()='Click for JS Alert']
+  Confirm Button: xpath=//button[text()='Click for JS Confirm']
+  Prompt Button:  xpath=//button[text()='Click for JS Prompt']
+  Result Text:    id=result

@@ -1,0 +1,6 @@
+Dynamic Controls Page:
+  Checkbox:              cssSelector=#checkbox input[type='checkbox']
+  Remove Add Button:     cssSelector=#checkbox-example button
+  Enable Disable Button: cssSelector=#input-example button
+  Loading Message:       id=message
+  Input Field:           cssSelector=#input-example input[type='text']

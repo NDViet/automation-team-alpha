@@ -1,0 +1,4 @@
+Dynamic Loading Page:
+  Start Button:      cssSelector=#start button
+  Loading Indicator: id=loading
+  Finish Element:    cssSelector=#finish h4

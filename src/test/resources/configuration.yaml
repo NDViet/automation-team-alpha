@@ -1,0 +1,34 @@
+selenium:
+  browser:
+    type: chrome
+    chrome:
+      args:
+        - --no-sandbox
+        - --disable-dev-shm-usage
+        - --headless=new
+        - --window-size=1920,1080
+        - --disable-gpu
+        - --remote-allow-origins=*
+    edge:
+      args:
+        - --no-sandbox
+        - --disable-dev-shm-usage
+        - --headless=new
+        - --window-size=1920,1080
+        - --disable-gpu
+        - --remote-allow-origins=*
+    firefox:
+      args:
+        - -headless
+        - --width=1920
+        - --height=1080
+  web_driver:
+    target: LOCAL
+  hub:
+    url: http://localhost:4444/wd/hub
+  default:
+    timeOut: 30
+  enableTracing: false
+
+webElementIdentifiers:
+  directory: src/test/resources/webElementIdentifiers
