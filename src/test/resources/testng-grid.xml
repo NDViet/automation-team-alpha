@@ -21,79 +21,79 @@
     <!-- ═══════════════════════════ CHROME ═══════════════════════════ -->
     <test name="Chrome – Authentication Tests">
         <parameter name="browser" value="chrome"/>
-        <classes><class name="com.ndviet.tests.authentication.AuthenticationTest"/></classes>
+        <classes><class name="org.ndviet.tests.authentication.AuthenticationTest"/></classes>
     </test>
 
     <test name="Chrome – Form Interaction Tests">
         <parameter name="browser" value="chrome"/>
-        <classes><class name="com.ndviet.tests.form.FormInteractionTest"/></classes>
+        <classes><class name="org.ndviet.tests.form.FormInteractionTest"/></classes>
     </test>
 
     <test name="Chrome – Alerts and Popups Tests">
         <parameter name="browser" value="chrome"/>
-        <classes><class name="com.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
+        <classes><class name="org.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
     </test>
 
     <test name="Chrome – Dynamic Content Tests">
         <parameter name="browser" value="chrome"/>
-        <classes><class name="com.ndviet.tests.dynamic.DynamicContentTest"/></classes>
+        <classes><class name="org.ndviet.tests.dynamic.DynamicContentTest"/></classes>
     </test>
 
     <test name="Chrome – Navigation and Windows Tests">
         <parameter name="browser" value="chrome"/>
-        <classes><class name="com.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
+        <classes><class name="org.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
     </test>
 
     <!-- ════════════════════════════ EDGE ════════════════════════════ -->
     <test name="Edge – Authentication Tests">
         <parameter name="browser" value="edge"/>
-        <classes><class name="com.ndviet.tests.authentication.AuthenticationTest"/></classes>
+        <classes><class name="org.ndviet.tests.authentication.AuthenticationTest"/></classes>
     </test>
 
     <test name="Edge – Form Interaction Tests">
         <parameter name="browser" value="edge"/>
-        <classes><class name="com.ndviet.tests.form.FormInteractionTest"/></classes>
+        <classes><class name="org.ndviet.tests.form.FormInteractionTest"/></classes>
     </test>
 
     <test name="Edge – Alerts and Popups Tests">
         <parameter name="browser" value="edge"/>
-        <classes><class name="com.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
+        <classes><class name="org.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
     </test>
 
     <test name="Edge – Dynamic Content Tests">
         <parameter name="browser" value="edge"/>
-        <classes><class name="com.ndviet.tests.dynamic.DynamicContentTest"/></classes>
+        <classes><class name="org.ndviet.tests.dynamic.DynamicContentTest"/></classes>
     </test>
 
     <test name="Edge – Navigation and Windows Tests">
         <parameter name="browser" value="edge"/>
-        <classes><class name="com.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
+        <classes><class name="org.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
     </test>
 
     <!-- ══════════════════════════ FIREFOX ═══════════════════════════ -->
     <test name="Firefox – Authentication Tests">
         <parameter name="browser" value="firefox"/>
-        <classes><class name="com.ndviet.tests.authentication.AuthenticationTest"/></classes>
+        <classes><class name="org.ndviet.tests.authentication.AuthenticationTest"/></classes>
     </test>
 
     <test name="Firefox – Form Interaction Tests">
         <parameter name="browser" value="firefox"/>
-        <classes><class name="com.ndviet.tests.form.FormInteractionTest"/></classes>
+        <classes><class name="org.ndviet.tests.form.FormInteractionTest"/></classes>
     </test>
 
     <test name="Firefox – Alerts and Popups Tests">
         <parameter name="browser" value="firefox"/>
-        <classes><class name="com.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
+        <classes><class name="org.ndviet.tests.alerts.AlertsAndPopupsTest"/></classes>
     </test>
 
     <test name="Firefox – Dynamic Content Tests">
         <parameter name="browser" value="firefox"/>
-        <classes><class name="com.ndviet.tests.dynamic.DynamicContentTest"/></classes>
+        <classes><class name="org.ndviet.tests.dynamic.DynamicContentTest"/></classes>
     </test>
 
     <test name="Firefox – Navigation and Windows Tests">
         <parameter name="browser" value="firefox"/>
-        <classes><class name="com.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
+        <classes><class name="org.ndviet.tests.navigation.NavigationAndWindowsTest"/></classes>
     </test>
 
 </suite>

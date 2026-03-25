@@ -1,4 +1,4 @@
-package com.ndviet.tests.base;
+package org.ndviet.tests.base;
 
 import com.platform.testframework.testng.PlatformTestNGBase;
 import java.lang.reflect.Method;

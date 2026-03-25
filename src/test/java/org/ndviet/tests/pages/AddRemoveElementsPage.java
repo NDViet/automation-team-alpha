@@ -1,4 +1,4 @@
-package com.ndviet.tests.pages;
+package org.ndviet.tests.pages;
 
 import java.util.List;
 import org.ndviet.library.TestObject.ObjectRepository;

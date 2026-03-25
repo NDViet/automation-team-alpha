@@ -1,10 +1,10 @@
-package com.ndviet.tests.navigation;
+package org.ndviet.tests.navigation;
 
 import static com.platform.testframework.annotation.TestMetadata.Severity.CRITICAL;
 import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL;
 
-import com.ndviet.tests.base.BaseTest;
-import com.ndviet.tests.pages.HoversPage;
+import org.ndviet.tests.base.BaseTest;
+import org.ndviet.tests.pages.HoversPage;
 import com.platform.testframework.annotation.TestMetadata;
 import org.ndviet.library.TestObject.ObjectRepository;
 import org.ndviet.library.WebUI;

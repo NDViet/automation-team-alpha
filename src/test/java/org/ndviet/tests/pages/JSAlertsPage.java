@@ -1,4 +1,4 @@
-package com.ndviet.tests.pages;
+package org.ndviet.tests.pages;
 
 import org.ndviet.library.TestObject.ObjectRepository;
 import org.ndviet.library.WebUI;

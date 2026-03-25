@@ -499,7 +499,7 @@ Add a `<test>` block for each browser inside `testng.xml`:
 ```xml
 <test name="Chrome – My Feature Tests">
     <parameter name="browser" value="chrome"/>
-    <classes><class name="com.ndviet.tests.myfeature.MyFeatureTest"/></classes>
+    <classes><class name="org.ndviet.tests.myfeature.MyFeatureTest"/></classes>
 </test>
 ```
 

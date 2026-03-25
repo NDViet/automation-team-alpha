@@ -1,11 +1,11 @@
-package com.ndviet.tests.form;
+package org.ndviet.tests.form;
 
 import static com.platform.testframework.annotation.TestMetadata.Severity.CRITICAL;
 import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL;
 
-import com.ndviet.tests.base.BaseTest;
-import com.ndviet.tests.pages.CheckboxesPage;
-import com.ndviet.tests.pages.DropdownPage;
+import org.ndviet.tests.base.BaseTest;
+import org.ndviet.tests.pages.CheckboxesPage;
+import org.ndviet.tests.pages.DropdownPage;
 import com.platform.testframework.annotation.TestMetadata;
 import org.testng.annotations.Test;
 

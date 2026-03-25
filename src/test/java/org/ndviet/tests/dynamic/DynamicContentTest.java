@@ -1,11 +1,11 @@
-package com.ndviet.tests.dynamic;
+package org.ndviet.tests.dynamic;
 
 import static com.platform.testframework.annotation.TestMetadata.Severity.CRITICAL;
 import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL;
 
-import com.ndviet.tests.base.BaseTest;
-import com.ndviet.tests.pages.AddRemoveElementsPage;
-import com.ndviet.tests.pages.DynamicControlsPage;
+import org.ndviet.tests.base.BaseTest;
+import org.ndviet.tests.pages.AddRemoveElementsPage;
+import org.ndviet.tests.pages.DynamicControlsPage;
 import com.platform.testframework.annotation.TestMetadata;
 import org.ndviet.library.WebUI;
 import org.testng.annotations.Test;

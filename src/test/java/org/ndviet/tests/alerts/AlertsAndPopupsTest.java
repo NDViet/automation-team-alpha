@@ -1,10 +1,10 @@
-package com.ndviet.tests.alerts;
+package org.ndviet.tests.alerts;
 
 import static com.platform.testframework.annotation.TestMetadata.Severity.CRITICAL;
 import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL;
 
-import com.ndviet.tests.base.BaseTest;
-import com.ndviet.tests.pages.JSAlertsPage;
+import org.ndviet.tests.base.BaseTest;
+import org.ndviet.tests.pages.JSAlertsPage;
 import com.platform.testframework.annotation.TestMetadata;
 import org.testng.annotations.Test;
 

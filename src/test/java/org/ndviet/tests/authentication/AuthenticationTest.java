@@ -1,11 +1,11 @@
-package com.ndviet.tests.authentication;
+package org.ndviet.tests.authentication;
 
 import static com.platform.testframework.annotation.TestMetadata.Severity.BLOCKER;
 import static com.platform.testframework.annotation.TestMetadata.Severity.CRITICAL;
 import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL;
 
-import com.ndviet.tests.base.BaseTest;
-import com.ndviet.tests.pages.LoginPage;
+import org.ndviet.tests.base.BaseTest;
+import org.ndviet.tests.pages.LoginPage;
 import com.platform.testframework.annotation.TestMetadata;
 import org.ndviet.library.WebUI;
 import org.testng.annotations.Test;
