@@ -4,7 +4,7 @@ End-to-end UI automation suite for [The Internet](https://the-internet.herokuapp
 
 | | |
 |---|---|
-| **Tech stack** | Java 17 · Gradle · TestNG · Selenium 4 |
+| **Tech stack** | Java 21 · Gradle · TestNG · Selenium 4 |
 | **Framework** | [test-automation-fwk](https://github.com/NDViet/test-automation-fwk) (`WebUI` facade · Page Object · `ObjectRepository`) |
 | **Platform** | [test-automation-platform](https://github.com/NDViet/test-automation-platform) (`PlatformTestNGBase` · structured logging) |
 | **Browsers** | Chrome · Edge · Firefox (parallel, all headless) |
@@ -32,7 +32,7 @@ End-to-end UI automation suite for [The Internet](https://the-internet.herokuapp
 
 | Tool | Minimum version | Notes |
 |------|----------------|-------|
-| JDK | 17 | `JAVA_HOME` must be set |
+| JDK | 21 | `JAVA_HOME` must be set |
 | Chrome | latest stable | ChromeDriver managed automatically by Selenium 4 |
 | Edge | latest stable | EdgeDriver managed automatically |
 | Firefox | latest stable | GeckoDriver managed automatically |
@@ -343,6 +343,92 @@ The workflow at `.github/workflows/run-tests.yml` runs on:
 2. **Execute Tests** — loads the image, mounts `./build`, runs `./gradlew test`; uploads HTML and XML reports as artifacts.
 
 Reports are available in **Actions → run → Artifacts** and as a summary via `dorny/test-reporter`.
+
+---
+
+## Performance tests (K6)
+
+K6 tests live in `performance/` and target [The Internet](https://the-internet.herokuapp.com). Results feed two complementary layers of the platform.
+
+```
+performance/
+├── k6/
+│   ├── homepage-load.js       # Landing page + key nav pages under ramping load
+│   ├── login-flow.js          # Valid + invalid auth under load
+│   └── form-interactions.js   # Dropdown, dynamic controls, dynamic loading
+├── platform-publisher.mjs     # Node.js: POST K6 summary JSON to platform ingestion
+├── run-all.sh                 # Run all tests → stream to InfluxDB → publish summary
+└── .gitignore                 # Excludes results/
+```
+
+### Two-layer observability
+
+| Layer | Tool | What it shows |
+|-------|------|---------------|
+| **Real-time drill-down** | InfluxDB → Grafana (`:3000`, dashboard `K6 Real-time Metrics`) | VUs over time, p50/p90/p95 time-series, error rate, TTFB, req/s — streamed live via `--out influxdb` |
+| **Summary / history** | Platform ingestion (`:8081`, dashboard `K6 Performance`) | Pass/fail per check aggregated across runs — parsed by `K6JsonParser` from `handleSummary` JSON |
+
+Both dashboards are provisioned automatically in the platform's Grafana. Results are filterable by **team**, **project**, and **environment**.
+
+### Prerequisites
+
+| Tool | Version |
+|------|---------|
+| [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) | latest |
+| Node.js | ≥ 18 |
+| Docker | 24+ (for the platform stack) |
+
+### Start InfluxDB + Grafana
+
+InfluxDB is part of the shared platform stack — no separate compose file needed:
+
+```bash
+cd /path/to/test-automation-platform
+docker compose up -d
+# Grafana  → http://localhost:3000  (admin / admin)
+# InfluxDB → http://localhost:8086
+```
+
+### Run tests
+
+```bash
+# Full suite — auto-streams to InfluxDB if reachable, publishes summary to platform
+bash performance/run-all.sh
+
+# Single test with live streaming
+k6 run --out influxdb=http://localhost:8086/k6 performance/k6/homepage-load.js
+
+# Override AUT URL or tagging
+BASE_URL=https://staging.example.com \
+K6_ENV=staging \
+bash performance/run-all.sh
+```
+
+`run-all.sh` auto-detects InfluxDB via `/ping`. If not reachable, tests still execute and publish the summary — streaming is skipped gracefully.
+
+### How results reach the platform
+
+Each K6 test emits a native summary JSON via `handleSummary()`. `platform-publisher.mjs` POSTs it as `format=K6` to the platform ingestion endpoint, which routes it to `K6JsonParser`. Results are stored with `sourceFormat=K6`, separate from functional suites.
+
+K6 metrics streamed to InfluxDB carry `team`, `project`, and `environment` tags so the real-time dashboard can filter per project/team without mixing runs.
+
+| Env var | Default | Purpose |
+|---------|---------|---------|
+| `INFLUXDB_URL` | `http://localhost:8086` | InfluxDB endpoint; empty string skips streaming |
+| `K6_TEAM` | `automation-team-alpha` | Tag written to every InfluxDB metric |
+| `K6_PROJECT` | `the-internet` | Tag written to every InfluxDB metric |
+| `K6_ENV` | `local` | Tag written to every InfluxDB metric |
+| `PLATFORM_URL` | `http://localhost:8081` | Platform ingestion base URL |
+| `PLATFORM_API_KEY` | `local-dev` | Ingestion API key |
+| `PLATFORM_TEAM_ID` | `automation-team-alpha` | Team for ingestion routing |
+| `PLATFORM_PROJECT_ID` | `the-internet` | Project for ingestion routing |
+| `TEST_ENV` | `local` | Environment label on ingested runs |
+
+### In CI
+
+The `performance-tests` job in `run-tests.yml` installs k6, runs `run-all.sh`, and uploads `performance/results/` as an artifact.
+
+Set the `INFLUXDB_URL` repository secret to point to a central InfluxDB instance to enable real-time metric streaming from CI. Leave it unset to run in summary-only mode (platform ingestion still runs).
 
 ---
 

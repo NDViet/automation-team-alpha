@@ -172,6 +172,9 @@ jobs:
             --name automation-test-runner \
             --network automation-grid_default \
             -e APP_URL=${{ inputs.app_url || 'https://the-internet.herokuapp.com' }} \
+            ${{ secrets.PLATFORM_URL && format('-e PLATFORM_URL={0}', secrets.PLATFORM_URL) || '' }} \
+            ${{ secrets.PLATFORM_API_KEY && format('-e PLATFORM_API_KEY={0}', secrets.PLATFORM_API_KEY) || '' }} \
+            -e TEST_ENV=ci \
             -v ${{ github.workspace }}/build:/workspace/build \
             ${{ needs.build-image.outputs.ghcr-sha-tag }} \
             ./gradlew test --no-daemon \
@@ -208,3 +211,62 @@ jobs:
           path: build/test-results/test/TEST-*.xml
           reporter: java-junit
           fail-on-error: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # K6 performance tests — run against the live AUT and publish K6 native
+  # JSON results to the platform. Runs independently of the Selenium suite.
+  # ─────────────────────────────────────────────────────────────────────────────
+  performance-tests:
+    name: K6 Performance Tests
+    runs-on: ubuntu-latest
+    # Run after functional tests so we don't hammer the AUT at the same time,
+    # but still run even if functional tests failed.
+    needs: run-tests
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring \
+            --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 \
+            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] \
+            https://dl.k6.io/deb stable main" \
+            | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update -q
+          sudo apt-get install -y k6
+
+      - name: Run K6 tests and publish to platform
+        env:
+          BASE_URL: ${{ inputs.app_url || 'https://the-internet.herokuapp.com' }}
+          PLATFORM_URL: ${{ secrets.PLATFORM_URL }}
+          PLATFORM_API_KEY: ${{ secrets.PLATFORM_API_KEY }}
+          PLATFORM_TEAM_ID: automation-team-alpha
+          PLATFORM_PROJECT_ID: the-internet
+          TEST_ENV: ci
+          # InfluxDB — set INFLUXDB_URL secret to stream real-time metrics to a
+          # central InfluxDB instance (e.g. the platform's influxdb container).
+          # Leave empty to skip streaming and produce summary-only results.
+          INFLUXDB_URL: ${{ secrets.INFLUXDB_URL || '' }}
+          K6_TEAM: automation-team-alpha
+          K6_PROJECT: the-internet
+          K6_ENV: ci
+        run: bash performance/run-all.sh
+
+      - name: Upload K6 results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-results-${{ github.run_number }}
+          path: performance/results/
+          retention-days: 14
