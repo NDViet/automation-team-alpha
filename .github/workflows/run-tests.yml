@@ -158,17 +158,12 @@ jobs:
       # Start hub + browser nodes defined in docker-compose.yml.
       # The Grid is on the 'automation-grid_default' Docker network; the
       # test-runner container joins that network so it can reach selenium-hub.
-      - name: Start Selenium Grid
-        run: docker compose up -d
-
-      # Wait until the hub reports ready, then give nodes time to register.
-      - name: Wait for Selenium Grid to be ready
+      # --wait blocks until every service with a healthcheck is healthy.
+      # --wait-timeout sets the upper bound in seconds (default 60 s is too short
+      # for browser nodes to register with the hub on a fresh CI runner).
+      - name: Start Selenium Grid and wait until healthy
         run: |
-          echo "Waiting for Selenium Hub..."
-          timeout 120 bash -c \
-            'until curl -sf http://localhost:4444/status | grep -q "\"ready\":true"; do sleep 5; done'
-          echo "Hub ready. Waiting 30 s for browser nodes to register..."
-          sleep 30
+          docker compose up -d --wait --wait-timeout 180
           docker compose ps
 
       - name: Run tests against Selenium Grid
