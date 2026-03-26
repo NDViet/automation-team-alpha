@@ -22,6 +22,7 @@ concurrency:
 
 # packages:write is required to push/pull images from GHCR
 permissions:
+  checks: write
   contents: read
   packages: write
 
