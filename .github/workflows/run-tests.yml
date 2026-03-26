@@ -233,6 +233,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@ndviet'
 
       - name: Install k6
         run: |
@@ -247,21 +249,22 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y k6
 
-      - name: Run K6 tests and publish to platform
+      - name: Run K6 tests
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_URL: ${{ inputs.app_url || 'https://the-internet.herokuapp.com' }}
-          PLATFORM_URL: ${{ secrets.PLATFORM_URL }}
-          PLATFORM_API_KEY: ${{ secrets.PLATFORM_API_KEY }}
+          # Platform ingestion — adapter skips gracefully if PLATFORM_URL is empty.
+          # Set PLATFORM_URL + PLATFORM_API_KEY secrets to enable result publishing.
+          PLATFORM_URL: ${{ secrets.PLATFORM_URL || '' }}
+          PLATFORM_API_KEY: ${{ secrets.PLATFORM_API_KEY || '' }}
           PLATFORM_TEAM_ID: automation-team-alpha
           PLATFORM_PROJECT_ID: the-internet
-          TEST_ENV: ci
-          # InfluxDB — set INFLUXDB_URL secret to stream real-time metrics to a
-          # central InfluxDB instance (e.g. the platform's influxdb container).
-          # Leave empty to skip streaming and produce summary-only results.
-          INFLUXDB_URL: ${{ secrets.INFLUXDB_URL || '' }}
           K6_TEAM: automation-team-alpha
           K6_PROJECT: the-internet
           K6_ENV: ci
+          # InfluxDB — set INFLUXDB_URL secret to stream real-time metrics.
+          # Leave empty to skip streaming (summary-only mode).
+          INFLUXDB_URL: ${{ secrets.INFLUXDB_URL || '' }}
         run: bash performance/run-all.sh
 
       - name: Upload K6 results

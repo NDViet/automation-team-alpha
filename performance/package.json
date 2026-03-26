@@ -1,0 +1,14 @@
+{
+  "name": "automation-team-alpha-performance",
+  "private": true,
+  "description": "K6 performance tests — adapter build tooling",
+  "scripts": {
+    "build": "esbuild k6/homepage-load.js k6/login-flow.js k6/form-interactions.js --bundle --outdir=dist --format=esm --target=es2020 --external:k6 --external:k6/* --external:https://*"
+  },
+  "dependencies": {
+    "@ndviet/adapter-k6": "1.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}

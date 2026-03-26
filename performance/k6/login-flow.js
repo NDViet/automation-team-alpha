@@ -10,9 +10,10 @@
 import { check, group, sleep } from 'k6';
 import http from 'k6/http';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { publishToPlatform } from '@ndviet/adapter-k6';
 
 const BASE_URL    = __ENV.BASE_URL    || 'https://the-internet.herokuapp.com';
-const RESULT_FILE = __ENV.RESULT_FILE || 'performance/results/login-results.json';
+const RESULT_FILE = __ENV.RESULT_FILE || '';
 
 export const options = {
   tags: {
@@ -74,8 +75,8 @@ export default function () {
 }
 
 export function handleSummary(data) {
-  return {
-    [RESULT_FILE]: JSON.stringify(data),
-    stdout: textSummary(data, { indent: ' ', enableColors: true }),
-  };
+  publishToPlatform(data);
+  const out = { stdout: textSummary(data, { indent: ' ', enableColors: true }) };
+  if (RESULT_FILE) out[RESULT_FILE] = JSON.stringify(data);
+  return out;
 }

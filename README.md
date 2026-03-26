@@ -356,9 +356,10 @@ performance/
 │   ├── homepage-load.js       # Landing page + key nav pages under ramping load
 │   ├── login-flow.js          # Valid + invalid auth under load
 │   └── form-interactions.js   # Dropdown, dynamic controls, dynamic loading
-├── platform-publisher.mjs     # Node.js: POST K6 summary JSON to platform ingestion
-├── run-all.sh                 # Run all tests → stream to InfluxDB → publish summary
-└── .gitignore                 # Excludes results/
+├── package.json               # @ndviet/adapter-k6 dependency + esbuild bundle script
+├── .npmrc                     # GitHub Packages registry config for @ndviet scope
+├── run-all.sh                 # Build (if needed) → run tests → stream to InfluxDB
+└── .gitignore                 # Excludes results/, node_modules/, dist/
 ```
 
 ### Two-layer observability
@@ -374,9 +375,8 @@ Both dashboards are provisioned automatically in the platform's Grafana. Results
 
 | Tool | Version |
 |------|---------|
-| [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) | latest |
-| Node.js | ≥ 18 |
-| Docker | 24+ (for the platform stack) |
+| [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) | ≥ 0.38.0 |
+| Docker | 24+ (for the platform stack, optional) |
 
 ### Start InfluxDB + Grafana
 
@@ -408,7 +408,20 @@ bash performance/run-all.sh
 
 ### How results reach the platform
 
-Each K6 test emits a native summary JSON via `handleSummary()`. `platform-publisher.mjs` POSTs it as `format=K6` to the platform ingestion endpoint, which routes it to `K6JsonParser`. Results are stored with `sourceFormat=K6`, separate from functional suites.
+Each K6 test imports `@ndviet/adapter-k6` by package name and calls `publishToPlatform(data)` inside `handleSummary`. Before running, `run-all.sh` checks for a `dist/` directory and if absent runs `npm install && npm run build`, which uses esbuild to bundle each K6 script with the adapter inlined. K6 then runs the bundled `dist/` files — no npm resolution at k6 runtime.
+
+The adapter reads `PLATFORM_URL`, `PLATFORM_API_KEY`, `PLATFORM_SUITE_NAME`, etc. from `__ENV` (passed by `run-all.sh`). If either credential is absent it skips silently.
+
+**First run / adapter upgrade:**
+
+```bash
+cd performance
+export NODE_AUTH_TOKEN=<github-pat-with-read:packages>
+npm install @ndviet/adapter-k6@<version>   # or just: npm install
+# dist/ is rebuilt automatically by run-all.sh on next run
+```
+
+To force a rebuild without running tests: `npm run build` inside `performance/`.
 
 K6 metrics streamed to InfluxDB carry `team`, `project`, and `environment` tags so the real-time dashboard can filter per project/team without mixing runs.
 

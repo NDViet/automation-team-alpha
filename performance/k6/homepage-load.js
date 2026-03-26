@@ -13,9 +13,10 @@
 import { check, group, sleep } from 'k6';
 import http from 'k6/http';
 import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { publishToPlatform } from '@ndviet/adapter-k6';
 
-const BASE_URL   = __ENV.BASE_URL    || 'https://the-internet.herokuapp.com';
-const RESULT_FILE = __ENV.RESULT_FILE || 'performance/results/homepage-results.json';
+const BASE_URL    = __ENV.BASE_URL    || 'https://the-internet.herokuapp.com';
+const RESULT_FILE = __ENV.RESULT_FILE || '';
 
 // Tags are stored as InfluxDB tag keys — used by the platform Grafana dashboard
 // to filter metrics by team / project / environment.
@@ -80,12 +81,8 @@ export default function () {
 }
 
 export function handleSummary(data) {
-  // JSON.stringify(data) produces k6's native summary format which contains
-  // root_group.checks[] and root_group.groups[].checks[] — parsed by the
-  // platform's K6JsonParser (format=K6). Using JUnit XML would lose all
-  // performance semantics and bypass the dedicated K6 parser.
-  return {
-    [RESULT_FILE]: JSON.stringify(data),
-    stdout: textSummary(data, { indent: ' ', enableColors: true }),
-  };
+  publishToPlatform(data);
+  const out = { stdout: textSummary(data, { indent: ' ', enableColors: true }) };
+  if (RESULT_FILE) out[RESULT_FILE] = JSON.stringify(data);
+  return out;
 }
