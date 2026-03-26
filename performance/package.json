@@ -9,6 +9,6 @@
     "@ndviet/adapter-k6": "next"
   },
   "devDependencies": {
-    "esbuild": "^0.23.0"
+    "esbuild": "^0.25.0"
   }
 }
