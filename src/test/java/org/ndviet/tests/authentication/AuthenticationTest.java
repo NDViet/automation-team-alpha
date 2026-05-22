@@ -7,7 +7,7 @@ import static com.platform.testframework.annotation.TestMetadata.Severity.NORMAL
 import org.ndviet.tests.base.BaseTest;
 import org.ndviet.tests.pages.LoginPage;
 import com.platform.testframework.annotation.TestMetadata;
-import org.ndviet.library.WebUI;
+import org.ndviet.library.webui.selenium.WebUI;
 import org.testng.annotations.Test;
 
 @TestMetadata(owner = "automation-team-alpha", feature = "Authentication")

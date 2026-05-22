@@ -1,7 +1,7 @@
 package org.ndviet.tests.pages;
 
 import org.ndviet.library.TestObject.ObjectRepository;
-import org.ndviet.library.WebUI;
+import org.ndviet.library.webui.selenium.WebUI;
 
 public class HoversPage {
 

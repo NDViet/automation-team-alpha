@@ -2,7 +2,7 @@ package org.ndviet.tests.base;
 
 import com.platform.testframework.testng.PlatformTestNGBase;
 import java.lang.reflect.Method;
-import org.ndviet.library.WebUI;
+import org.ndviet.library.webui.selenium.WebUI;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
